@@ -1,0 +1,25 @@
+{
+	"name": "walkie-watchie",
+	"version": "0.0.1",
+	"description": "Watches file changes",
+	"keywords": ["walk", "watch", "fs"],
+	"author": {
+		"name": "Gabriel Llamas",
+		"email": "gaglekas@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/Gagle/Node-WalkieWatchie.git"
+	},
+	"engines": {
+		"node": ">=0.10.0"
+	},
+	"dependencies": {
+		"error-provider": "*"
+	},
+	"licenses": [{
+		"type": "MIT",
+		"url": "http://www.opensource.org/licenses/mit-license.html"
+	}],
+	"main": "lib/walkie-watchie"
+}
