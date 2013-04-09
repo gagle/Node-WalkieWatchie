@@ -14,9 +14,6 @@
 	"engines": {
 		"node": ">=0.10.0"
 	},
-	"dependencies": {
-		"error-provider": "*"
-	},
 	"licenses": [{
 		"type": "MIT",
 		"url": "http://www.opensource.org/licenses/mit-license.html"
