@@ -3,17 +3,15 @@ walkie-watchie
 
 _Node.js project_
 
-#### Watches file changes ####
+#### File system watcher ####
 
 Version: 0.0.1
 
-Yet another file watcher.
+Yet another file system watcher. This module doesn't use timers to avoid dulicate events as other modules do, it uses `setImmediate`, so it's more efficient and fast.
 
 All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly or they are just poorly written.
 
-This module doesn't use timers, it uses `setImmediate`, so it's more efficient and fast.
-
-The `fs.watchFile()` function is not recommended and the `fs.watch()` function is terribly bugged: duplicate emitted events, false positives, watchers emitting events when they should not, incorrect event type, the returned filename parameter is not guaranteed, etc. This module tries to workaround these bugs at its best so you don't have to worry about anything.
+The `fs.watchFile()` function is not recommended and the `fs.watch()` function is terribly bugged: duplicate emitted events, false positives, watchers emitting events when they should not, incorrect event type, the returned filename parameter is not guaranteed, etc. This module tries to workaround all these bugs at its best so you don't have to worry about anything.
 
 #### Installation ####
 
@@ -24,9 +22,9 @@ not published
 #### Example ####
 
 ```javascript
-var ww = require ("walkie-watchie");
+var watch = require ("walkie-watchie");
 
-var watcher = ww (".");
+var watcher = watch (".");
 
 watcher.on ("create", function (path, isDirectory){
 	console.log ("create: " + path + ", " + (isDirectory ? "directory" : "file"));
@@ -72,7 +70,7 @@ A filter can be used to process or not the current path when the directory tree 
 
 <a name="unwatch"></a>
 __Watcher#unwatch()__  
-Stops watching the files.
+Stops watching file system events.
 
 <a name="watched"></a>
 __Watcher#watched()__  

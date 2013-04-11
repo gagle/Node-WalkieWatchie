@@ -1,7 +1,7 @@
 {
 	"name": "walkie-watchie",
 	"version": "0.0.1",
-	"description": "Watches file changes",
+	"description": "File system watcher",
 	"keywords": ["walk", "watch", "fs"],
 	"author": {
 		"name": "Gabriel Llamas",
