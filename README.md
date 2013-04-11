@@ -7,7 +7,7 @@ _Node.js project_
 
 Version: 0.0.1
 
-Yet another file system watcher. This module doesn't use timers to avoid dulicate events as other modules do, it uses `setImmediate`, so it's more efficient and fast.
+Yet another file system watcher. This module doesn't use timers to avoid duplicate events as other modules do, it uses `setImmediate`, so it's more efficient and fast.
 
 All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly or they are just poorly written.
 
@@ -26,22 +26,25 @@ var watch = require ("walkie-watchie");
 
 var watcher = watch (".");
 
-watcher.on ("create", function (path, isDirectory){
-	console.log ("create: " + path + ", " + (isDirectory ? "directory" : "file"));
-	console.log ("remaining: " + watcher.watched ());
+watcher.on ("create", function (path, stats){
+	console.log (">> create: " + path + ", " +
+			(stats.isDirectory () ? "directory" : "file"));
+	console.log (">> files: " + watcher.files () + ", directories " +
+			watcher.directories ());
 });
 
-watcher.on ("delete", function (path){
-	console.log ("delete: " + path);
-	console.log ("remaining: " + watcher.watched ());
+watcher.on ("delete", function (path, isDir){
+	console.log (">> delete: " + path + ", " + (isDir ? "directory" : "file"));
+	console.log (">> files: " + watcher.files () + ", directories: " +
+			watcher.directories ());
 });
 
-watcher.on ("change", function (path){
-	console.log ("change: " + path);
+watcher.on ("modify", function (path){
+	console.log (">> modify: " + path);
 });
 
 watcher.on ("any", function (){
-	console.log ("any");
+	//console.log ("any");
 });
 
 watcher.on ("error", function (error){
@@ -53,8 +56,9 @@ watcher.on ("error", function (error){
 #### Methods ####
 
 - [watch(path[, settings, filter])](#watch)
+- [Watcher#directories()](#directories)
+- [Watcher#files()](#files)
 - [Watcher#unwatch()](#unwatch)
-- [Watcher#watched()](#watched)
 
 <a name="watch"></a>
 __watch(path[, settings, filter])__  
@@ -68,10 +72,14 @@ The possible settings are:
 
 A filter can be used to process or not the current path when the directory tree is traversed. The filter receives 3 parameters: relative path, basename of that path and a callback. Pass true to the callback to process the path. The path can be a file or directory and does not mean to watch or not to watch, it just allows or not to process the path or directory. For example, when you receive a directory and the callback is called with a false value, its files are ignored. If you receive a file then it is ignored and not watched.
 
+<a name="directories"></a>
+__Watcher#directories()__  
+Returns the number of watched directories.
+
+<a name="files"></a>
+__Watcher#files()__  
+Returns the number of watched files.
+
 <a name="unwatch"></a>
 __Watcher#unwatch()__  
 Stops watching file system events.
-
-<a name="watched"></a>
-__Watcher#watched()__  
-Returns the number of watched files.
