@@ -3,6 +3,10 @@ walkie-watchie
 
 _Node.js project_
 
+## Warning
+fs.watch() is a very unstable function. The module is fully working on Windows and needs to be tested on Linux and OSX.
+***
+
 #### File system watcher ####
 
 Version: 0.0.2
