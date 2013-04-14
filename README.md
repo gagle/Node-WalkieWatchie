@@ -72,14 +72,14 @@ watcher.on ("error", function (error){
 
 #### Methods ####
 
-- [watch(path[, settings, filter])](#watch)
+- [watch(path[, settings])](#watch)
 - [Watcher#directories()](#directories)
 - [Watcher#files()](#files)
 - [Watcher#tree()](#tree)
 - [Watcher#unwatch()](#unwatch)
 
 <a name="watch"></a>
-__watch(path[, settings, filter])__  
+__watch(path[, settings])__  
 Traverses the directory tree and watches for file and directory creations/changes/deletions.   
 Returns a watcher object.
 
