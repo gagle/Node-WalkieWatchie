@@ -13,9 +13,9 @@ Version: 0.0.2
 
 Yet another file system watcher supporting any operating system and any type of operation.
 
-This module doesn't use timers to avoid duplicate events as other modules do, so it's more efficient and fast. Only one timer with 10ms timeout is being used to detect rename events. File changes are emitted without any delay.
+This module doesn't use timers to avoid duplicate events as other modules do, so it's more efficient and fast. Only one timer with 10ms timeout is being used to detect rename events. By default file changes are emitted without any delay.
 
-All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly or they are just poorly written.
+All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly, they are poorly written or they are incomplete and lack some events.
 
 The `fs.watchFile()` function is not recommended and the `fs.watch()` function is terribly bugged: duplicate emitted events, false positives, watchers emitting events when they should not, incorrect event types, the returned filename parameter is not guaranteed, etc. This module tries to workaround all these bugs at its best so you don't have to worry about anything.
 
