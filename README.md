@@ -72,7 +72,7 @@ watcher.on ("error", function (error){
 ```
 
 #### Events ####
-- `watching`. Emitted after all the directory tree has been traversed and all the watchers has been bound.
+- `watching`. Emitted after all the directory tree has been traversed and all the watchers has been bound after `watch()` is called.
 - `create`. Emitted when a file or directory has been created. The callback receives the path and the `Stats` object.
 - `delete`. Emitted when a file or directory has been deleted. The callback receives the path and a boolean indicating if the deleted entry is a directory.
 - `modify`. Emitted when a file has been modified. The callback receives the path of the file.
