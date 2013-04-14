@@ -1,2 +1,6 @@
-v0.0.1 (xx Apr 2013)
+v0.0.2 (14 Apr 2013)
+	Added "rename" event.
+	Fixed some edge cases.
+
+v0.0.1 (14 Apr 2013)
 	First commit.

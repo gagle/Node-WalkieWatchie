@@ -5,11 +5,11 @@ _Node.js project_
 
 #### File system watcher ####
 
-Version: 0.0.1
+Version: 0.0.2
 
 Yet another file system watcher supporting any operating system and any type of operation.
 
-This module doesn't use timers to avoid duplicate events as other modules do, so it's more efficient and fast.
+This module doesn't use timers to avoid duplicate events as other modules do, so it's more efficient and fast. Only one timer with 10ms timeout is being used to detect rename events. File changes are emitted without any delay.
 
 All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly or they are just poorly written.
 
@@ -39,18 +39,23 @@ watcher.on ("watching", function (){
 watcher.on ("create", function (path, stats){
 	console.log ("create: " + path + ", " +
 			(stats.isDirectory () ? "directory" : "file"));
-	console.log ("directories " + watcher.directories () +
+	console.log ("directories: " + watcher.directories () +
 			", files: " + watcher.files ());
 });
 
 watcher.on ("delete", function (path, isDir){
 	console.log ("delete: " + path + ", " + (isDir ? "directory" : "file"));
-	console.log ("directories " + watcher.directories () +
+	console.log ("directories: " + watcher.directories () +
 			", files: " + watcher.files ());
 });
 
 watcher.on ("modify", function (path){
 	console.log ("modify: " + path);
+});
+
+watcher.on ("rename", function (oldPath, newPath, isDir){
+	console.log ("rename: old: " + oldPath + ", new: " + newPath + 
+			", " + (isDir ? "directory" : "file"));
 });
 
 watcher.on ("any", function (){
@@ -67,7 +72,8 @@ watcher.on ("error", function (error){
 - `create`. Emitted when a file or directory has been created. The callback receives the path and the `Stats` object.
 - `delete`. Emitted when a file or directory has been deleted. The callback receives the path and a boolean indicating if the deleted entry is a directory.
 - `modify`. Emitted when a file has been modified. The callback receives the path of the file.
-- `any`. Emitted right after a `create`, `delete` or `modify` event is emitted.
+- `rename`. Emitted when a file or directory has been renamed. The callback receives the old and new paths and a boolean indicating if the renamed entry is a directory.
+- `any`. Emitted right after a `create`, `delete`, `modify` or `rename` event is emitted.
 - `error`. Emitted when an error occurs. All the watchers are closed automatically.
 
 #### Methods ####
