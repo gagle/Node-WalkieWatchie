@@ -9,7 +9,7 @@ Version: 0.0.1
 
 Yet another file system watcher supporting any operating system and any type of operation.
 
-This module doesn't use timers to avoid duplicate events as other modules do, so it's more efficient and fast. Only one timer is being used to detect rename/move events. By default file changes are emitted without any delay.
+This module doesn't use timers to avoid duplicate events as other modules do, so it's more efficient and fast. Only one timer is being used to detect rename/move events and it can be disabled. By default file changes are emitted without any delay.
 
 All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly, they are poorly written or they are incomplete and lack some events.
 
@@ -112,7 +112,13 @@ The possible settings are:
   ```
 
 - changeDelay. _Number_. Delay in milliseconds between file changes events. File changes occurred within the delay period are ignored. There's no delay by default.
-- renameDelay. _Number_. Delay in milliseconds to detect rename/move events. Default is 10ms.
+- renameDelay. _Number_. Delay in milliseconds to detect rename/move events. Default is 10ms. Take into account that a rename/move event it's just a delete followed by a create (from the `fs.watch()` point of view) so it's not possible to check if a file has been moved from one location to another (or within the same directory) or if a new file has been created. That's why a timer is needed to detect rename/move events.
+
+  The goal of this module is to detect any type of operation in a development environment when the user modifies files with the preferred text editor or uses the file explorer or console. File system changes are typically listened when you're writing client files (ejs, jade, less, scripts, etc.) and you need to build style and script bundles to minimize the number of requests.
+  
+  The rename/move event can't be detected without a timer. If you rename a file and immediately after you create another file bad things could happen; the first renamed file could be interpreted as a new file and the second created file could be interpreted as a renamed file because the rename/move timer is still active. Therefore, use this module to listen events when the user performs manual operations.
+  
+  However, the rename/move timer can be disabled setting a `renameDelay` to -1 and therefore no rename/move events will be emitted. Rename/move events will be interpreted as a delete followed by a create.
 
 <a name="directories"></a>
 __Watcher#directories()__  
