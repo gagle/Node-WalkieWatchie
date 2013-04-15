@@ -75,7 +75,7 @@ watcher.on ("error", function (error){
 - `change`. Emitted when a file has been modified. The callback receives the path of the file.
 - `move`. Emitted when a file or directory has been moved to another location being watched (also know as rename). The callback receives the old and new paths and a boolean indicating if the entry is a directory.
 - `any`. Emitted right after a `create`, `delete`, `change` or `move` event is emitted.
-- `error`. Emitted when an error occurs. All the watchers are closed automatically.
+- `error`. Emitted when an error occurs. The watcher is closed automatically.
 
 #### Methods ####
 
