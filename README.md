@@ -7,7 +7,7 @@ _Node.js project_
 
 Version: 0.0.1
 
-Yet another file system watcher supporting any operating system and any type of operation.
+The deiitive file system watcher. Currently only Windows is fully supported.
 
 This module doesn't use timers to avoid duplicate events as other modules do, so it's more efficient and fast. Only one timer is being used to detect rename/move events and it can be disabled. By default file changes are emitted without any delay.
 
