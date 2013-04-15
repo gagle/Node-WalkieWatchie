@@ -49,12 +49,12 @@ watcher.on ("delete", function (path, isDir){
 			", files: " + watcher.files ());
 });
 
-watcher.on ("modify", function (path){
-	console.log ("modify: " + path);
+watcher.on ("change", function (path){
+	console.log ("change: " + path);
 });
 
-watcher.on ("rename", function (oldPath, newPath, isDir){
-	console.log ("rename: old: " + oldPath + ", new: " + newPath + 
+watcher.on ("move", function (oldPath, newPath, isDir){
+	console.log ("move: old: " + oldPath + ", new: " + newPath + 
 			", " + (isDir ? "directory" : "file"));
 });
 
@@ -70,10 +70,10 @@ watcher.on ("error", function (error){
 #### Events ####
 - `watching`. Emitted after all the directory tree has been traversed and all the watchers has been bound after `watch()` is called.
 - `create`. Emitted when a file or directory has been created. The callback receives the path and the `Stats` object.
-- `delete`. Emitted when a file or directory has been deleted. The callback receives the path and a boolean indicating if the deleted entry is a directory.
-- `modify`. Emitted when a file has been modified. The callback receives the path of the file.
-- `rename`. Emitted when a file or directory has been renamed. The callback receives the old and new paths and a boolean indicating if the renamed entry is a directory.
-- `any`. Emitted right after a `create`, `delete`, `modify` or `rename` event is emitted.
+- `delete`. Emitted when a file or directory has been deleted. The callback receives the path and a boolean indicating if the entry is a directory.
+- `change`. Emitted when a file has been modified. The callback receives the path of the file.
+- `move`. Emitted when a file or directory has been moved to another location being watched (also know as rename). The callback receives the old and new paths and a boolean indicating if the entry is a directory.
+- `any`. Emitted right after a `create`, `delete`, `change` or `move` event is emitted.
 - `error`. Emitted when an error occurs. All the watchers are closed automatically.
 
 #### Methods ####
