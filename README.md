@@ -20,7 +20,7 @@ When a watcher is bound to a file it emits incorrect events. The basic idea is t
 #### Installation ####
 
 ```
-not published
+npm install walkie-watchie
 ```
 
 #### Example ####
