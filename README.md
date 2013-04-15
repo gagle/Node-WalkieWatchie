@@ -98,12 +98,12 @@ The possible settings are:
   
   ```javascript
   var filter = function (p, filename, cb){
-		require("fs").lstat (p, function (error, stats){
+		fs.lstat (p, function (error, stats){
 			if (error) return console.error (error);
 			if (stats.isDirectory ()){
 				cb (true);
 			}else{
-				cb (require("path").extname (filename) === ".css");
+				cb (path.extname (filename) === ".css");
 			}
 		});
 	};
