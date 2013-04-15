@@ -19,7 +19,7 @@ All the other tree traversal watchers doesn't do what they're supposed to do, th
 
 The `fs.watchFile()` function is not recommended and the `fs.watch()` function is terribly bugged: duplicate emitted events, false positives, watchers emitting events when they should not, incorrect event types, the returned filename parameter is not guaranteed, etc. This module tries to workaround all these bugs at its best so you don't have to worry about anything.
 
-When a watcher is bound to a file it emits incorrect events. The basic idea is to only watch directories. However duplicate change events are still emitted. The simplest solution is to add a lock, treat the first emitted event, emit a custom change event and then unlock.
+When a watcher is bound to a file it emits incorrect events. The basic idea is to only watch directories. However, duplicate change events are still emitted. The simplest solution is to add a lock, treat the first emitted event, emit a custom change event and then unlock.
 
 #### Installation ####
 
