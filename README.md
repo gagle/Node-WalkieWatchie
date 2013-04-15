@@ -3,13 +3,9 @@ walkie-watchie
 
 _Node.js project_
 
-## Warning
-fs.watch() is a very unstable function. The module is fully working on Windows and needs to be tested on Linux and OSX.
-***
-
 #### File system watcher ####
 
-Version: 0.0.2
+Version: 0.0.1
 
 Yet another file system watcher supporting any operating system and any type of operation.
 
@@ -24,7 +20,7 @@ When a watcher is bound to a file it emits incorrect events. The basic idea is t
 #### Installation ####
 
 ```
-npm install walkie-watchie
+not published
 ```
 
 #### Example ####
