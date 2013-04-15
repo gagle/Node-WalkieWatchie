@@ -90,7 +90,7 @@ watcher.on ("error", function (error){
 
 <a name="watch"></a>
 __watch(path[, settings])__  
-Traverses the directory tree and watches for file and directory creations/changes/deletions.   
+Traverses the directory tree and watches for file and directory events. The path can be a file or a directory.   
 Returns a watcher object.
 
 Take into account that on Windows you may not be able to delete directories: [#3963](https://github.com/joyent/node/issues/3963).
