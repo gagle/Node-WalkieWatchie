@@ -93,7 +93,7 @@ __watch(path[, settings])__
 Traverses the directory tree and watches for file and directory creations/changes/deletions.   
 Returns a watcher object.
 
-Take into account that when you watch files you're locking them, and it's possible that you may not be able to delete directories.
+Take into account that on Windows you may not be able to delete directories: [#3963](https://github.com/joyent/node/issues/3963).
 
 The possible settings are:
 - filter. _Function_. Filters the files/directories. The function receives 3 parameters: relative path, filename and a callback. Pass true to the callback to process the path. The path can be a file or directory and does not mean to watch or not to watch, it just allows or not to process the path or directory. For example, when you receive a directory and the callback is called with a false value, its files are ignored. If you receive a file then it is ignored and not watched.
@@ -114,7 +114,7 @@ The possible settings are:
 	watch (".", { filter: filter });
   ```
 
-- delay. _Number_. Delay in milliseconds between file changes events. File changes whitin the delay period are ignored. There's no delay by default.
+- delay. _Number_. Delay in milliseconds between file changes events. File changes occurred within the delay period are ignored. There's no delay by default.
 
 <a name="directories"></a>
 __Watcher#directories()__  
