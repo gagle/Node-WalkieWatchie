@@ -9,7 +9,7 @@ Version: 0.0.1
 
 Yet another file system watcher supporting any operating system and any type of operation.
 
-This module doesn't use timers to avoid duplicate events as other modules do, so it's more efficient and fast. Only one timer with 10ms timeout is being used to detect rename events. By default file changes are emitted without any delay.
+This module doesn't use timers to avoid duplicate events as other modules do, so it's more efficient and fast. Only one timer is being used to detect rename/move events. By default file changes are emitted without any delay.
 
 All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly, they are poorly written or they are incomplete and lack some events.
 
@@ -68,6 +68,7 @@ watcher.on ("error", function (error){
 ```
 
 #### Events ####
+
 - `watching`. Emitted after all the directory tree has been traversed and all the watchers has been bound after `watch()` is called.
 - `create`. Emitted when a file or directory has been created. The callback receives the path and the `Stats` object.
 - `delete`. Emitted when a file or directory has been deleted. The callback receives the path and a boolean indicating if the entry is a directory.
@@ -110,7 +111,8 @@ The possible settings are:
 	watch (".", { filter: filter });
   ```
 
-- delay. _Number_. Delay in milliseconds between file changes events. File changes occurred within the delay period are ignored. There's no delay by default.
+- changeDelay. _Number_. Delay in milliseconds between file changes events. File changes occurred within the delay period are ignored. There's no delay by default.
+- renameDelay. _Number_. Delay in milliseconds to detect rename/move events. Default is 10ms.
 
 <a name="directories"></a>
 __Watcher#directories()__  
