@@ -3,13 +3,22 @@ walkie-watchie
 
 _Node.js project_
 
+## Warning
+Due to the unstable nature of `fs.watch()` this module is in a beta state until it reaches v0.1.0.
+***
+
 #### File system watcher ####
 
-Version: 0.0.1
+Version: 0.0.2
 
-The deiitive file system watcher. Currently only Windows is fully supported.
+The definitive file system watcher. Currently only Windows and Linux are fully supported.
 
-This module doesn't use timers to avoid duplicate events as other modules do, so it's more efficient and fast. Only one timer is being used to detect rename/move events and it can be disabled. By default file changes are emitted without any delay.
+Tested on:
+
+- Windows 7 x64.
+- Linux Mint 14 x64.
+
+This module can be used without timers. It's not necessary to create a timer to avoid duplicate change events on some platforms (i.e. Windows), but for compatibility reasons between platforms a 50ms timeout is set by default but it can be disabled. Also, another timer with 50ms timeout is being used to detect rename/move events but it can be disabled, in that case you'll get delete and create events.
 
 All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly, they are poorly written or they are incomplete and lack some events.
 
@@ -67,6 +76,25 @@ watcher.on ("error", function (error){
 });
 ```
 
+#### Caveats ####
+
+Currently, if multiple operations are done in a very short period of time unexpected behaviours could happen, like events not being emitted, incorrect events, etc. This is because `fs.watch()` emits events in the same tick of the event loop but some asynchronous checks must be done in order to properly detect events.
+
+If you basically use this module to know when the files are modified you shouldn't get unexpected behaviours.
+
+#### Known issues ####
+
+On Linux when a directory is deleted `fs.watch()` does not emit individual events for every file or subdirectory. In other words, if you have the following directory tree you'll get only one event: `a` is deleted.
+
+```text
+a
+|- f.txt
+`- b
+   `- f.txt
+```
+
+On Windows you can't delete `a` because a subdirectory is being watched: [#3963](https://github.com/joyent/node/issues/3963). But you can delete `b` and you'll get two events: `b` is deleted and `b\f.txt` is deleted.
+
 #### Events ####
 
 - `watching`. Emitted after all the directory tree has been traversed and all the watchers has been bound after `watch()` is called.
@@ -79,46 +107,61 @@ watcher.on ("error", function (error){
 
 #### Methods ####
 
-- [watch(path[, settings])](#watch)
+- [watch(paths[, settings])](#watch)
 - [Watcher#directories()](#directories)
 - [Watcher#files()](#files)
 - [Watcher#tree()](#tree)
 - [Watcher#unwatch()](#unwatch)
 
 <a name="watch"></a>
-__watch(path[, settings])__  
-Traverses the directory tree and watches for file and directory events. The path can be a file or a directory.   
+__watch(paths[, settings])__  
+Traverses the directory tree and watches for file and directory events. The path can be a file or a directory or an array of files and directories.  
 Returns a watcher object.
 
-Take into account that on Windows you may not be able to delete directories: [#3963](https://github.com/joyent/node/issues/3963).
-
 The possible settings are:
-- filter. _Function_. Filters the files/directories. The function receives 3 parameters: relative path, filename and a callback. Pass true to the callback to process the path. The path can be a file or directory and does not mean to watch or not to watch, it just allows or not to process the path or directory. For example, when you receive a directory and the callback is called with a false value, its files are ignored. If you receive a file then it is ignored and not watched.
+- filter. _Function_. Filters files, directories and events. The function receives 3 parameters: relative path, basename and a callback. Pass true to the callback to permit the file, directory or event. The filter does not mean to watch or not to watch because it can also filter events, it just allows or not to process the file, directory or event.
 
-  For example, to watch .css files:
+For example, when you receive a directory and the callback is called with a false value, its files are ignored. If you receive a file then it is ignored.
+
+  For example, to allow only .css files:
   
   ```javascript
-  var filter = function (p, filename, cb){
+  var filter = function (p, basename, cb){
 		fs.lstat (p, function (error, stats){
 			if (error) return console.error (error);
 			if (stats.isDirectory ()){
 				cb (true);
 			}else{
-				cb (path.extname (filename) === ".css");
+				cb (path.extname (basename) === ".css");
 			}
 		});
 	};
 	watch (".", { filter: filter });
   ```
 
-- changeDelay. _Number_. Delay in milliseconds between file changes events. File changes occurred within the delay period are ignored. There's no delay by default.
-- renameDelay. _Number_. Delay in milliseconds to detect rename/move events. Default is 10ms. Take into account that a rename/move event it's just a delete followed by a create (from the `fs.watch()` point of view) so it's not possible to check if a file has been moved from one location to another (or within the same directory) or if a new file has been created. That's why a timer is needed to detect rename/move events.
+- defaultFilter. _null_. Set it to null to disable the default filter. The default filter ignores gedit and vim temporary files. It's heavily recommended to maintain the default filter.
+
+  Default filter:
+  
+  ```javascript
+  var include =
+			//gedit
+			!beginsWith (basename, ".goutputstream-") &&
+			
+			//vim
+			!endsWith (basename, ".swp") && !endsWith (basename, ".swx") &&
+			!endsWith (basename, "~") && isNaN (basename);
+  ```
+
+- changeDelay. _Number_. Delay in milliseconds between file changes events. File changes occurred within the delay period are ignored. Default is 50ms. Set it to null to disable the timer but take into account that some platforms need a timer to avoid duplicate change events.
+
+- renameDelay. _Number_. Delay in milliseconds to detect rename/move events. Default is 50ms. Take into account that a rename/move event it's just a delete followed by a create (from the `fs.watch()` point of view) so it's not possible to check if a file has been moved from one location to another (or within the same directory) or if a new file or directory has been created. That's why a timer is needed to detect rename/move events.
 
   The goal of this module is to detect any type of operation in a development environment when the user modifies files with the preferred text editor or uses the file explorer or console. File system changes are typically listened when you're writing client files (ejs, jade, less, scripts, etc.) and you need to build style and script bundles to minimize the number of requests.
   
-  The rename/move event can't be detected without a timer. If you rename a file and immediately after you create another file bad things could happen; the first renamed file could be interpreted as a new file and the second created file could be interpreted as a renamed file because the rename/move timer is still active. Therefore, use this module to listen events when the user performs manual operations.
+  The rename/move event can't be detected without a timer. If you rename a file and immediately after you create another file bad things could happen. The first renamed file could be interpreted as a new file and the second created file could be interpreted as a renamed file because the rename/move timer is still active.
   
-  However, the rename/move timer can be disabled setting a `renameDelay` to -1 and therefore no rename/move events will be emitted. Rename/move events will be interpreted as a delete followed by a create.
+  However, the rename/move timer can be disabled setting `renameDelay` to null and therefore no rename/move events will be emitted. Rename/move events will be interpreted as a delete followed by a create.
 
 <a name="directories"></a>
 __Watcher#directories()__  

@@ -1,2 +1,12 @@
+v0.0.2 (16 Apr 2013)
+	Added Linux support.
+	Added a default change delay of 10ms.
+	"renameDelay" and "changeDelay" are disabled with null.
+	Incremented default timeouts to 50ms.
+	Files that are replaced emit change events.
+	Events are also filtered.
+	Added a default filter.
+	Some bugfixes.
+
 v0.0.1 (15 Apr 2013)
 	First commit.

@@ -1,8 +1,8 @@
 {
 	"name": "walkie-watchie",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "File system watcher",
-	"keywords": ["walk", "watch", "fs"],
+	"keywords": ["walk", "watch", "fs", "tree", "file", "directory"],
 	"author": {
 		"name": "Gabriel Llamas",
 		"email": "gaglekas@gmail.com"
@@ -14,7 +14,7 @@
 	"engines": {
 		"node": ">=0.10.0"
 	},
-	"os": ["win32"],
+	"os": ["win32", "linux"],
 	"licenses": [{
 		"type": "MIT",
 		"url": "http://www.opensource.org/licenses/mit-license.html"
