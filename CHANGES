@@ -1,6 +1,12 @@
+v0.0.3 (xx Apr 2013)
+	New approach in a tree way to store the internal wrappers.
+	Refactored "tree()".
+	On Windows, when a directory is deleted its files doesn't emit a delete event,
+		only the directory delete event is emitted.
+
 v0.0.2 (16 Apr 2013)
 	Added Linux support.
-	Added a default change delay of 10ms.
+	Added a default change delay of 50ms.
 	"renameDelay" and "changeDelay" are disabled with null.
 	Incremented default timeouts to 50ms.
 	Files that are replaced emit change events.

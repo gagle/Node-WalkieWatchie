@@ -3,10 +3,6 @@ walkie-watchie
 
 _Node.js project_
 
-## Warning
-Due to the unstable nature of `fs.watch()` this module is in a beta state until it reaches v0.1.0.
-***
-
 #### File system watcher ####
 
 Version: 0.0.2
@@ -18,9 +14,9 @@ Tested on:
 - Windows 7 x64.
 - Linux Mint 14 x64.
 
-This module can be used without timers. It's not necessary to create a timer to avoid duplicate change events on some platforms (i.e. Windows), but for compatibility reasons between platforms a 50ms timeout is set by default but it can be disabled. Also, another timer with 50ms timeout is being used to detect rename/move events but it can be disabled, in that case you'll get delete and create events.
+This module can be used without timers. It's not necessary to create a timer to avoid duplicate change events on Windows, but for compatibility reasons among operating systems a 50ms timeout is set by default, but it can be disabled. Also, another timer with 50ms timeout is being used to detect rename/move events but it can be disabled, in that case you'll get delete and create events instead of move events.
 
-All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly, they are poorly written or they are incomplete and lack some events.
+All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly, they are poorly written, they are incomplete and lack some events or they are just abandoned.
 
 The `fs.watchFile()` function is not recommended and the `fs.watch()` function is terribly bugged: duplicate emitted events, false positives, watchers emitting events when they should not, incorrect event types, the returned filename parameter is not guaranteed, etc. This module tries to workaround all these bugs at its best so you don't have to worry about anything.
 
@@ -97,7 +93,7 @@ On Windows you can't delete `a` because a subdirectory is being watched: [#3963]
 
 #### Events ####
 
-- `watching`. Emitted after all the directory tree has been traversed and all the watchers has been bound after `watch()` is called.
+- `watching`. Emitted after all the directory tree has been traversed for the first time after `watch()` is called.
 - `create`. Emitted when a file or directory has been created. The callback receives the path and the `Stats` object.
 - `delete`. Emitted when a file or directory has been deleted. The callback receives the path and a boolean indicating if the entry is a directory.
 - `change`. Emitted when a file has been modified. The callback receives the path of the file.
@@ -139,12 +135,15 @@ For example, when you receive a directory and the callback is called with a fals
 	watch (".", { filter: filter });
   ```
 
-- defaultFilter. _null_. Set it to null to disable the default filter. The default filter ignores gedit and vim temporary files. It's heavily recommended to maintain the default filter.
+- defaultFilter. _Object_. Set it to null to disable the default filter. The default filter ignores gedit and vim temporary files. It's heavily recommended to maintain the default filter.
 
   Default filter:
   
   ```javascript
   var include =
+  		//.DS_Store
+			basename !== ".DS_Store" &&
+  		
 			//gedit
 			!beginsWith (basename, ".goutputstream-") &&
 			
