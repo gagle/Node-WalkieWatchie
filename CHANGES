@@ -1,9 +1,10 @@
-v0.0.3 (xx Apr 2013)
+v0.0.3 (22 Apr 2013)
 	New approach in a tree way to store the internal wrappers.
 	Refactored "tree()".
 	On Windows, when a directory is deleted its files doesn't emit a delete event,
 		only the directory delete event is emitted.
 	"watch()" doesn't permit an array of paths.
+	Fixed bug with move event.
 
 v0.0.2 (16 Apr 2013)
 	Added Linux support.

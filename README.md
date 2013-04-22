@@ -155,7 +155,7 @@ The possible settings are:
   
   ```javascript
   var include =
-  		//.DS_Store
+			//.DS_Store
 			basename !== ".DS_Store" &&
   		
 			//gedit
@@ -178,8 +178,8 @@ The possible settings are:
   
   Another example. These two command are error prone: `mv a b` and `rm a && touch b`. `fs.watch()` will emit in both cases in the same tick:
   
-  rename null (`a` is deleted)  
-  rename b (`b` is created)
+  `a` is deleted  
+  `b` is created
   
   It's not possible to know if it was a move or delete-create action. If you are using a `renameDelay`, you'll get a move event in both cases. If you disable the `renameDelay` you'll get a delete and create events in both cases.
 
