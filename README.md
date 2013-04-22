@@ -5,7 +5,7 @@ _Node.js project_
 
 #### File system watcher ####
 
-Version: 0.0.2
+Version: 0.0.3
 
 The definitive file system watcher. Currently only Windows and Linux are fully supported.
 
