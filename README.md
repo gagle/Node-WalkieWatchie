@@ -3,6 +3,10 @@ walkie-watchie
 
 _Node.js project_
 
+## Warning
+Because `fs.watch()` is pretty unstable this module is in a beta state until v0.1.0.
+***
+
 #### File system watcher ####
 
 Version: 0.0.3
