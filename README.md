@@ -9,7 +9,7 @@ Because `fs.watch()` is pretty unstable this module is in a beta state until v0.
 
 #### File system watcher ####
 
-Version: 0.0.3
+Version: 0.0.4
 
 The definitive file system watcher. Currently only Windows and Linux are fully supported.
 
