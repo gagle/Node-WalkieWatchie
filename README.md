@@ -9,7 +9,7 @@ Because `fs.watch()` is pretty unstable this module is in a beta state until v0.
 
 #### File system watcher ####
 
-Version: 0.0.4
+Version: 0.0.5
 
 The definitive file system watcher. Currently only Windows and Linux are fully supported.
 
@@ -167,7 +167,7 @@ The possible settings are:
 			
 			//vim
 			!endsWith (basename, ".swp") && !endsWith (basename, ".swx") &&
-			!endsWith (basename, "~") && isNaN (basename);
+			!endsWith (basename, "~");
   ```
 
 - changeDelay. _Number_. Delay in milliseconds between file changes events. File changes occurred within the delay period are ignored. Default is 50ms. Set it to null to disable the timer but take into account that some platforms (Unix-like) need a timer to avoid duplicate change events.
