@@ -99,7 +99,7 @@ a
 
 On Windows you can't delete `a` because the subdirectory `b` is being watched: [#3963](https://github.com/joyent/node/issues/3963). But you can delete `b` and you'll get two events: `b` is deleted and `b\f.txt` is deleted.
 
-For uniformity reasons among operating systems, because on Windows you can delete a directory if there are subdirectories being watched, and because on Linux files and subdirectories doesn't emit any event, when a directory is deleted only one event will be emitted, the event that says that the directory has been deleted.
+For uniformity reasons among operating systems, because on Windows you cannot delete a directory if there are subdirectories being watched, and because on Linux files and subdirectories doesn't emit any event when a directory is deleted, only one event will be emitted, the event that says that the directory has been deleted.
 
 #### Events ####
 
