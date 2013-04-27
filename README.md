@@ -9,7 +9,7 @@ Because `fs.watch()` is pretty unstable this module is in a beta state until v0.
 
 #### File system watcher ####
 
-Version: 0.0.5
+Version: 0.0.6
 
 The definitive file system watcher. Currently only Windows and Linux are fully supported.
 
@@ -153,7 +153,7 @@ The possible settings are:
   - Vim temporary files.
   - .DS_Store.
   
-  If you need to support other programs open a new request.
+  If you need to support other programs, open a new request.
   
   The default filter is:
   
@@ -165,7 +165,8 @@ The possible settings are:
 			//gedit
 			!beginsWith (basename, ".goutputstream-") &&
 			
-			//vim
+			//vim, this should also include "isNaN(basename)" but can filter valid
+			//files or directories with a name where all the characters are numbers
 			!endsWith (basename, ".swp") && !endsWith (basename, ".swx") &&
 			!endsWith (basename, "~");
   ```
