@@ -83,14 +83,16 @@ watcher.on ("error", function (error){
 - Currently, if multiple operations are done in a very short period of time unexpected behaviours could happen, like events not being emitted, incorrect events, etc. This is because `fs.watch()` emits events in the same tick of the event loop but some asynchronous checks must be done in order to properly detect events.
 
   If you basically use this module to know when the files are modified you shouldn't get unexpected behaviours.
+  
+  It's working pretty well with the `shelljs` module which uses the Node.js built-in fs functions and emit events in the same tick.
 
 - This module tries to fix all the incorrect events emitted by `fs.watch()` but cannot detect inconsistencies from other programs. For example, the `touch` command sometimes changes the file so you can get a create event followed by a change.
 
-- Symbolic links are not supported.
+- Symbolic links are not supported. Watching a file implies watching its parent directory, so you can imagine the complexity to enable support for them.
 
 #### Known issues ####
 
-On Linux when a directory is deleted `fs.watch()` does not emit individual events for every file or subdirectory. In other words, if you have the following directory tree and you delete `a` you'll get only one event: `a` is deleted.
+On Linux, when a directory is deleted, `fs.watch()` doesn't emit individual events for every file or subdirectory. In other words, if you have the following directory tree and you delete `a` you'll get only one event: `a` is deleted.
 
 ```text
 a
@@ -101,7 +103,9 @@ a
 
 On Windows you can't delete `a` because the subdirectory `b` is being watched: [#3963](https://github.com/joyent/node/issues/3963). But you can delete `b` and you'll get two events: `b` is deleted and `b\f.txt` is deleted.
 
-For uniformity reasons among operating systems, because on Windows you cannot delete a directory if there are subdirectories being watched, and because on Linux files and subdirectories doesn't emit any event when a directory is deleted, only one event will be emitted, the event that says that the directory has been deleted.
+For uniformity reasons among operating systems, because on Windows you cannot delete a directory if there are subdirectories being watched, and because on Linux files and subdirectories doesn't emit any event when a directory is deleted, only one event will be emitted, the event that says that the directory has been deleted. If a directory has been deleted you can assume that all its content has also been deleted.
+
+Watching directories inside a FAT file system (e.g. USB pendrive) is not working as expected.
 
 #### Events ####
 
@@ -161,13 +165,10 @@ The possible settings are:
   
   ```javascript
   var include =
-			//.DS_Store
-			basename !== ".DS_Store" &&
-  		
 			//gedit
 			!beginsWith (basename, ".goutputstream-") &&
 			
-			//vim, this should also include "isNaN(basename)" but can filter valid
+			//vim, this should also include "isNaN(basename)" but could filter valid
 			//files or directories with a name where all the characters are numbers
 			!endsWith (basename, ".swp") && !endsWith (basename, ".swx") &&
 			!endsWith (basename, "~");
@@ -183,7 +184,7 @@ The possible settings are:
   
   However, the rename/move timer can be disabled setting `renameDelay` to null and therefore no rename/move events will be emitted. Rename/move events will be interpreted as a delete followed by a create.
   
-  Another example. These two command are error prone: `mv a b` and `rm a && touch b`. `fs.watch()` will emit in both cases in the same tick:
+  Another example. These two commands are error prone: `mv a b` and `rm a && touch b`. `fs.watch()` will emit in both cases in the same tick:
   
   `a` is deleted  
   `b` is created
@@ -216,6 +217,8 @@ watch ("my/dir");
 	d: {}
 }
 ```
+
+It returns null when the watched entry is a file or when has been called to `unwatch()`.
 
 <a name="unwatch"></a>
 __Watcher#unwatch()__  

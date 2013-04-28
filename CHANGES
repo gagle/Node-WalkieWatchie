@@ -1,3 +1,8 @@
+v0.0.8 (xx Apr 2013)
+	Added tests.
+	Removed .DS_Store filter.
+	Some bugfixes.
+
 v0.0.7 (27 Apr 2013)
 	Fixed "delete" event when multiple entries were deleted in the same tick.
 	Fixed directory counter when new entries were created.
