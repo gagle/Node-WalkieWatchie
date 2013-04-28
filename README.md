@@ -157,7 +157,6 @@ The possible settings are:
   
   - Gedit temporary files.
   - Vim temporary files.
-  - .DS_Store.
   
   If you need to support other programs, open a new request.
   
