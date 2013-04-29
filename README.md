@@ -169,8 +169,8 @@ The possible settings are:
 			
 			//vim, this should also include "isNaN(basename)" but could filter valid
 			//files or directories with a name where all the characters are numbers
-			!endsWith (basename, ".swp") && !endsWith (basename, ".swx") &&
-			!endsWith (basename, "~");
+			!endsWith (basename, ".swp") && !endsWith (basename, ".swpx") &&
+			!endsWith (basename, ".swx") && !endsWith (basename, "~");
   ```
 
 - changeDelay. _Number_. Delay in milliseconds between file changes events. File changes occurred within the delay period are ignored. Default is 50ms. Set it to null to disable the timer but take into account that some platforms (Unix-like) need a timer to avoid duplicate change events.

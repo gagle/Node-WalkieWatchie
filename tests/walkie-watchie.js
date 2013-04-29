@@ -6,6 +6,8 @@ var path = require ("path");
 var fs = require ("fs");
 var watch = require ("../lib/walkie-watchie");
 
+var LINUX = process.platform === "linux";
+
 describe ("walkie-watchie", function (){
 	describe ("tree and counters", function (){
 		beforeEach (function (){
@@ -320,6 +322,58 @@ describe ("walkie-watchie", function (){
 		beforeEach (function (){
 			rm ("-r", "watch/*");
 		});
+		
+		if (LINUX){
+			it ("should listen when a directory has been renamed/moved, same " +
+					"directory", function (done){
+						cp ("-R", "a", "watch");
+						
+						var tree = {};
+						var h = tree["d"] = {};
+						h["a1"] = path.normalize ("watch/d/a1");
+						h = h["b"] = {};
+						h["b1"] = path.normalize ("watch/d/b/b1");
+						h["b2"] = path.normalize ("watch/d/b/b2");
+						h["c"] = {};
+						
+						var expected = {};
+						expected[path.normalize ("watch/a")] = {
+							newPath: path.normalize ("watch/d"),
+							isDir: true
+						};
+						
+						var o = {};
+						
+						var watcher = watch ("watch")
+								.on ("error", function (error){
+									console.error (error);
+									assert.fail ();
+								})
+								.on ("watching", function (){
+									assert.strictEqual (watcher.files (), 3);
+									assert.strictEqual (watcher.directories (), 4);
+									mv ("watch/a", "watch/d");
+								})
+								.on ("create", function (){
+									assert.fail ();
+								})
+								.on ("delete", function (){
+									assert.fail ();
+								})
+								.on ("move", function (oldPath, newPath, isDir){
+									o[oldPath] = { newPath: newPath, isDir: isDir };
+								});
+						
+						setTimeout (function (){
+							assert.deepEqual (o, expected);
+							assert.strictEqual (watcher.files (), 3);
+							assert.strictEqual (watcher.directories (), 4);
+							assert.deepEqual (watcher.tree (), tree);
+							watcher.unwatch ();
+							done ();
+						}, 200);
+					});
+		}
 		
 		it ("should listen when a file or directory has been renamed/moved, same " +
 				"directory", function (done){
