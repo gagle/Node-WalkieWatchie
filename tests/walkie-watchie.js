@@ -7,7 +7,7 @@ var fs = require ("fs");
 var watch = require ("../lib/walkie-watchie");
 
 describe ("walkie-watchie", function (){
-	/*describe ("tree and counters", function (){
+	describe ("tree and counters", function (){
 		beforeEach (function (){
 			rm ("-r", "watch/*");
 		});
@@ -314,7 +314,7 @@ describe ("walkie-watchie", function (){
 				done ();
 			}, 100);
 		});
-	});*/
+	});
 	
 	describe ("move event", function (){
 		beforeEach (function (){
@@ -323,7 +323,129 @@ describe ("walkie-watchie", function (){
 		
 		it ("should listen when a file or directory has been renamed/moved, same " +
 				"directory", function (done){
+					cp ("a/a1", "watch/f1");
 					
+					var tree = {};
+					tree["f2"] = path.normalize ("watch/f2");
+					
+					var expected = {};
+					expected[path.normalize ("watch/f1")] = {
+						newPath: path.normalize ("watch/f2"),
+						isDir: false
+					};
+					
+					var o = {};
+					
+					var watcher = watch ("watch")
+							.on ("error", function (error){
+								console.error (error);
+								assert.fail ();
+							})
+							.on ("watching", function (){
+								assert.strictEqual (watcher.files (), 1);
+								assert.strictEqual (watcher.directories (), 1);
+								mv ("watch/f1", "watch/f2");
+							})
+							.on ("move", function (oldPath, newPath, isDir){
+								o[oldPath] = { newPath: newPath, isDir: isDir };
+							});
+					
+					setTimeout (function (){
+						assert.deepEqual (o, expected);
+						assert.strictEqual (watcher.files (), 1);
+						assert.strictEqual (watcher.directories (), 1);
+						assert.deepEqual (watcher.tree (), tree);
+						watcher.unwatch ();
+						done ();
+					}, 200);
 				});
+		
+		it ("should listen when a file or directory has been renamed/moved, " +
+				"different directory, case 1", function (done){
+					cp ("-R", "a/b/c", "watch");
+					cp ("a/a1", "watch/f1");
+					
+					var tree = {
+						c: {}
+					};
+					tree.c["f1"] = path.normalize ("watch/c/f1");
+					
+					var expected = {};
+					expected[path.normalize ("watch/f1")] = {
+						newPath: path.normalize ("watch/c/f1"),
+						isDir: false
+					};
+					
+					var o = {};
+					
+					var watcher = watch ("watch")
+							.on ("error", function (error){
+								console.error (error);
+								assert.fail ();
+							})
+							.on ("watching", function (){
+								assert.strictEqual (watcher.files (), 1);
+								assert.strictEqual (watcher.directories (), 2);
+								mv ("watch/f1", "watch/c/f1");
+							})
+							.on ("move", function (oldPath, newPath, isDir){
+								o[oldPath] = { newPath: newPath, isDir: isDir };
+							});
+					
+					setTimeout (function (){
+						assert.deepEqual (o, expected);
+						assert.strictEqual (watcher.files (), 1);
+						assert.strictEqual (watcher.directories (), 2);
+						assert.deepEqual (watcher.tree (), tree);
+						watcher.unwatch ();
+						done ();
+					}, 200);
+				});
+		
+		it ("should listen when a file or directory has been renamed/moved, " +
+				"different directory, case 2", function (done){
+					cp ("-R", "a/b/c", "watch");
+					cp ("a/a1", "watch/c/f1");
+					
+					var tree = {
+						c: {},
+						f1: path.normalize ("watch/f1")
+					};
+					
+					var expected = {};
+					expected[path.normalize ("watch/c/f1")] = {
+						newPath: path.normalize ("watch/f1"),
+						isDir: false
+					};
+					
+					var o = {};
+					
+					var watcher = watch ("watch")
+							.on ("error", function (error){
+								console.error (error);
+								assert.fail ();
+							})
+							.on ("watching", function (){
+								assert.strictEqual (watcher.files (), 1);
+								assert.strictEqual (watcher.directories (), 2);
+								mv ("watch/c/f1", "watch/f1");
+							})
+							.on ("move", function (oldPath, newPath, isDir){
+								o[oldPath] = { newPath: newPath, isDir: isDir };
+							});
+					
+					setTimeout (function (){
+						assert.deepEqual (o, expected);
+						assert.strictEqual (watcher.files (), 1);
+						assert.strictEqual (watcher.directories (), 2);
+						assert.deepEqual (watcher.tree (), tree);
+						watcher.unwatch ();
+						done ();
+					}, 200);
+				});
+		
+		after (function (){
+			rm ("-r", "watch/*");
+		});
 	});
 });
