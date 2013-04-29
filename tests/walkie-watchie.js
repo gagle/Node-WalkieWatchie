@@ -346,6 +346,12 @@ describe ("walkie-watchie", function (){
 								assert.strictEqual (watcher.directories (), 1);
 								mv ("watch/f1", "watch/f2");
 							})
+							.on ("create", function (){
+								assert.fail ();
+							})
+							.on ("delete", function (){
+								assert.fail ();
+							})
 							.on ("move", function (oldPath, newPath, isDir){
 								o[oldPath] = { newPath: newPath, isDir: isDir };
 							});
@@ -387,6 +393,12 @@ describe ("walkie-watchie", function (){
 								assert.strictEqual (watcher.files (), 1);
 								assert.strictEqual (watcher.directories (), 2);
 								mv ("watch/f1", "watch/c/f1");
+							})
+							.on ("create", function (){
+								assert.fail ();
+							})
+							.on ("delete", function (){
+								assert.fail ();
 							})
 							.on ("move", function (oldPath, newPath, isDir){
 								o[oldPath] = { newPath: newPath, isDir: isDir };
@@ -430,6 +442,12 @@ describe ("walkie-watchie", function (){
 								assert.strictEqual (watcher.directories (), 2);
 								mv ("watch/c/f1", "watch/f1");
 							})
+							.on ("create", function (){
+								assert.fail ();
+							})
+							.on ("delete", function (){
+								assert.fail ();
+							})
 							.on ("move", function (oldPath, newPath, isDir){
 								o[oldPath] = { newPath: newPath, isDir: isDir };
 							});
@@ -442,6 +460,106 @@ describe ("walkie-watchie", function (){
 						watcher.unwatch ();
 						done ();
 					}, 200);
+				});
+				
+		it ("should receive delete and create events if no delay is configured, " +
+				"same directory",
+				function (done){
+					cp ("a/a1", "watch/f1");
+					
+					var tree = {
+						f2: path.normalize ("watch/f2")
+					};
+					
+					var expected = {};
+					expected[path.normalize ("watch/f2")] = {
+						type: "create", isDir: false
+					};
+					expected[path.normalize ("watch/f1")] = {
+						type: "delete", isDir: false
+					};
+					
+					var o = {};
+					
+					var watcher = watch ("watch", { renameDelay: null })
+							.on ("error", function (error){
+								console.error (error);
+								assert.fail ();
+							})
+							.on ("watching", function (){
+								assert.strictEqual (watcher.files (), 1);
+								assert.strictEqual (watcher.directories (), 1);
+								mv ("watch/f1", "watch/f2");
+							})
+							.on ("create", function (p, stats){
+								o[p] = { type: "create", isDir: stats.isDirectory () };
+							})
+							.on ("delete", function (p, isDir){
+								o[p] = { type: "delete", isDir: isDir };
+							})
+							.on ("move", function (){
+								assert.fail ();
+							});
+					
+					setTimeout (function (){
+						assert.deepEqual (o, expected);
+						assert.strictEqual (watcher.files (), 1);
+						assert.strictEqual (watcher.directories (), 1);
+						assert.deepEqual (watcher.tree (), tree);
+						watcher.unwatch ();
+						done ();
+					}, 100);
+				});
+		
+		it ("should receive delete and create events if no delay is configured, " +
+				"different directory",
+				function (done){
+					cp ("-R", "a/b/c", "watch");
+					cp ("a/a1", "watch/c/f1");
+					
+					var tree = {
+						c: {},
+						f1: path.normalize ("watch/f1")
+					};
+					
+					var expected = {};
+					expected[path.normalize ("watch/f1")] = {
+						type: "create", isDir: false
+					};
+					expected[path.normalize ("watch/c/f1")] = {
+						type: "delete", isDir: false
+					};
+					
+					var o = {};
+					
+					var watcher = watch ("watch", { renameDelay: null })
+							.on ("error", function (error){
+								console.error (error);
+								assert.fail ();
+							})
+							.on ("watching", function (){
+								assert.strictEqual (watcher.files (), 1);
+								assert.strictEqual (watcher.directories (), 2);
+								mv ("watch/c/f1", "watch/f1");
+							})
+							.on ("create", function (p, stats){
+								o[p] = { type: "create", isDir: stats.isDirectory () };
+							})
+							.on ("delete", function (p, isDir){
+								o[p] = { type: "delete", isDir: isDir };
+							})
+							.on ("move", function (){
+								assert.fail ();
+							});
+					
+					setTimeout (function (){
+						assert.deepEqual (o, expected);
+						assert.strictEqual (watcher.files (), 1);
+						assert.strictEqual (watcher.directories (), 2);
+						assert.deepEqual (watcher.tree (), tree);
+						watcher.unwatch ();
+						done ();
+					}, 100);
 				});
 		
 		after (function (){
