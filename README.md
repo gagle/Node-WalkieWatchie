@@ -19,6 +19,7 @@ Tested on:
 - Windows 7 x64.
 - Windows 8 x64.
 - Linux Mint 14 x64.
+- Ubuntu 12.04 x64.
 
 This module can be used without timers. It's not necessary to create a timer to avoid duplicate change events on Windows, but for compatibility reasons among operating systems a 50ms timeout is set by default, but it can be disabled. Also, another timer with 50ms timeout is being used to detect rename/move events but it also can be disabled, in that case you'll get delete and create events instead of move events.
 
