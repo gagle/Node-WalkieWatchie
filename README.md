@@ -200,7 +200,7 @@ __Watcher#files()__
 Returns the number of watched files.
 
 <a name="tree"></a>
-__Watcher#files()__  
+__Watcher#tree()__  
 Returns a plain structured object with all the files and directories being watched. The value of a file property is the relative path from the current working directory. For example:
 
 ```javascript
