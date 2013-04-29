@@ -38,13 +38,14 @@ npm install walkie-watchie
 
 ```javascript
 var watch = require ("walkie-watchie");
+var util = require ("util");
 
 var watcher = watch (".");
 
 watcher.on ("watching", function (){
 	console.log ("directories: " + watcher.directories ());
 	console.log ("files: " + watcher.files ());
-	console.log (watcher.tree ());
+	console.log (util.inspect (watcher.tree (), { depth: null }));
 });
 
 watcher.on ("create", function (path, stats){
