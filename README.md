@@ -22,7 +22,7 @@ Tested on:
 
 This module can be used without timers. It's not necessary to create a timer to avoid duplicate change events on Windows, but for compatibility reasons among operating systems a 50ms timeout is set by default, but it can be disabled. Also, another timer with 50ms timeout is being used to detect rename/move events but it also can be disabled, in that case you'll get delete and create events instead of move events.
 
-All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly, they are poorly written, they are incomplete and lack some events or they are just abandoned.
+All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly, they are poorly written, they are incomplete and lack some events or they are just outdated.
 
 The `fs.watchFile()` function is not recommended and the `fs.watch()` function is terribly bugged: duplicate emitted events, false positives, watchers emitting events when they should not, incorrect event types, the returned filename parameter is not guaranteed, etc. This module tries to workaround all these bugs at its best so you don't have to worry about anything.
 

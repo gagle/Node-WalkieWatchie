@@ -316,7 +316,50 @@ describe ("walkie-watchie", function (){
 				done ();
 			}, 100);
 		});
-	});
+		
+		it ("should avoid false positives: a and ab files, modify a, ignore ab " +
+				"change event", function (done){
+					cp ("a/a1", "watch/a");
+					cp ("a/a1", "watch/ab");
+					
+					var tree = {};
+					tree["a"] = path.normalize ("watch/a");
+					tree["ab"] = path.normalize ("watch/ab");
+					
+					var expected = {};
+					expected[path.normalize ("watch/a")] = null;
+					
+					var o = {};
+					
+					var watcher = watch ("watch")
+							.on ("error", function (error){
+								console.error (error);
+								assert.fail ();
+							})
+							.on ("watching", function (){
+								assert.strictEqual (watcher.files (), 2);
+								assert.strictEqual (watcher.directories (), 1);
+								fs.createWriteStream ("watch/a")
+										.on ("error", function (error){
+											console.error (error);
+											assert.fail ();
+										})
+										.end ("asd");
+							})
+							.on ("change", function (p){
+								o[p] = null;
+							});
+					
+					setTimeout (function (){
+						assert.deepEqual (o, expected);
+						assert.strictEqual (watcher.files (), 2);
+						assert.strictEqual (watcher.directories (), 1);
+						assert.deepEqual (watcher.tree (), tree);
+						watcher.unwatch ();
+						done ();
+					}, 100);
+				});
+			});
 	
 	describe ("move event", function (){
 		beforeEach (function (){
