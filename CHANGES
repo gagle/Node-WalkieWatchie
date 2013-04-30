@@ -1,3 +1,6 @@
+v0.0.10 (xx xx 2013)
+	
+
 v0.0.9 (30 Apr 2013)
 	Changed "renameDelay" name to "moveDelay".
 	Timers are now disabled by default.
