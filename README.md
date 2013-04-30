@@ -6,7 +6,7 @@ _Node.js project_
 ## Warning
 Because `fs.watch()` is pretty unstable this module is in a beta state until v0.1.0. A lot of changes could happen.
 
-Editing files with vim is currently bugged with a moveDelay but I've thought a new way to process raw events that could work pretty well.
+Editing files with vim is currently bugged with a moveDelay.
 ***
 
 #### File system watcher ####
