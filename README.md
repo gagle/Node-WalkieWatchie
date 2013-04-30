@@ -22,7 +22,7 @@ Tested on:
 - Linux Mint 14 x64.
 - Ubuntu 12.04 x64.
 
-This module can be used without timers. It's not necessary to create a timer to avoid duplicate change events, but certain operations may require it, e.g. uploading a file through ssh or ftp. By default it uses a 50ms timeout, but it can be disabled. I recommend to test whether your scenario can support file changes without a timer, if so, you can safely ignore it. Also, another timer with 50ms timeout is being used to detect rename/move events but it also can be disabled because is not 100% accurate, in that case you'll get delete and create events instead of move events.
+This module can be used without timers. It's not necessary to create a timer to avoid duplicate change events, but certain operations may require it, e.g. uploading a file through ssh or ftp. By default it uses a 50ms timeout, but it can be disabled. I recommend to test whether your scenario can support file changes without a timer, if so, you can safely disable it. Also, another timer with 50ms timeout is being used to detect rename/move events but it also can be disabled because is not 100% accurate, in that case you'll get delete and create events instead of move events.
 
 All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly, they are poorly written, they are incomplete and lack some events or they are just outdated.
 
