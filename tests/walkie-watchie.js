@@ -8,50 +8,9 @@ var watch = require ("../lib/walkie-watchie");
 
 var WINDOWS = process.platform === "win32";
 var LINUX = process.platform === "linux";
+var DELAY = 50;
 
 describe ("walkie-watchie", function (){
-	describe ("duplicate change events", function (){
-		it ("can be avoided without a timer", function (done){
-			cp ("a/a1", "watch/f1");
-			
-			var tree = {};
-			tree["f1"] = path.normalize ("watch/f1");
-			
-			var expected = {};
-			expected[path.normalize ("watch/f1")] = null;
-			
-			var o = {};
-			
-			var watcher = watch ("watch", { changeDelay: null })
-					.on ("error", function (error){
-						console.error (error);
-						assert.fail ();
-					})
-					.on ("watching", function (){
-						assert.strictEqual (watcher.files (), 1);
-						assert.strictEqual (watcher.directories (), 1);
-						fs.createWriteStream ("watch/f1")
-								.on ("error", function (error){
-									console.error (error);
-									assert.fail ();
-								})
-								.end ("asd");
-					})
-					.on ("change", function (p){
-						o[p] = null;
-					});
-			
-			setTimeout (function (){
-				assert.deepEqual (o, expected);
-				assert.strictEqual (watcher.files (), 1);
-				assert.strictEqual (watcher.directories (), 1);
-				assert.deepEqual (watcher.tree (), tree);
-				watcher.unwatch ();
-				done ();
-			}, 100);
-		});
-	});
-
 	describe ("tree and counters", function (){
 		beforeEach (function (){
 			rm ("-r", "watch/*");
@@ -82,7 +41,6 @@ describe ("walkie-watchie", function (){
 		
 		it ("should return null when the watched root is a file or when the " +
 				"watcher has been unwatched, counters reset",	function (done){
-				
 					var watcher = watch ("a/a1")
 						.on ("error", function (error){
 							console.error (error);
@@ -111,7 +69,7 @@ describe ("walkie-watchie", function (){
 						})
 				});
 	});
-
+	
 	describe ("create event", function (){
 		beforeEach (function (){
 			rm ("-r", "watch/*");
@@ -320,7 +278,7 @@ describe ("walkie-watchie", function (){
 			rm ("-r", "watch/*");
 		});
 		
-		it ("should listen when a file has been modified", function (done){
+		it ("should avoid duplicate change events without a delay", function (done){
 			cp ("a/a1", "watch/f1");
 			
 			var tree = {};
@@ -360,8 +318,49 @@ describe ("walkie-watchie", function (){
 			}, 100);
 		});
 		
+		it ("should listen when a file has been modified, with delay",
+				function (done){
+					cp ("a/a1", "watch/f1");
+			
+					var tree = {};
+					tree["f1"] = path.normalize ("watch/f1");
+			
+					var expected = {};
+					expected[path.normalize ("watch/f1")] = null;
+			
+					var o = {};
+			
+					var watcher = watch ("watch", { changeDelay: DELAY })
+							.on ("error", function (error){
+								console.error (error);
+								assert.fail ();
+							})
+							.on ("watching", function (){
+								assert.strictEqual (watcher.files (), 1);
+								assert.strictEqual (watcher.directories (), 1);
+								fs.createWriteStream ("watch/f1")
+										.on ("error", function (error){
+											console.error (error);
+											assert.fail ();
+										})
+										.end ("asd");
+							})
+							.on ("change", function (p){
+								o[p] = null;
+							});
+			
+					setTimeout (function (){
+						assert.deepEqual (o, expected);
+						assert.strictEqual (watcher.files (), 1);
+						assert.strictEqual (watcher.directories (), 1);
+						assert.deepEqual (watcher.tree (), tree);
+						watcher.unwatch ();
+						done ();
+					}, 100);
+				});
+		
 		it ("should avoid false positives: a and ab files, modify a, ignore ab " +
-				"change event", function (done){
+				"change event, with delay", function (done){
 					cp ("a/a1", "watch/a");
 					cp ("a/a1", "watch/ab");
 					
@@ -374,7 +373,7 @@ describe ("walkie-watchie", function (){
 					
 					var o = {};
 					
-					var watcher = watch ("watch")
+					var watcher = watch ("watch", { changeDelay: DELAY })
 							.on ("error", function (error){
 								console.error (error);
 								assert.fail ();
@@ -430,7 +429,7 @@ describe ("walkie-watchie", function (){
 						
 						var o = {};
 						
-						var watcher = watch ("watch")
+						var watcher = watch ("watch", { moveDelay: 50 })
 								.on ("error", function (error){
 									console.error (error);
 									assert.fail ();
@@ -476,7 +475,7 @@ describe ("walkie-watchie", function (){
 					
 					var o = {};
 					
-					var watcher = watch ("watch")
+					var watcher = watch ("watch", { moveDelay: 50 })
 							.on ("error", function (error){
 								console.error (error);
 								assert.fail ();
@@ -524,7 +523,7 @@ describe ("walkie-watchie", function (){
 					
 					var o = {};
 					
-					var watcher = watch ("watch")
+					var watcher = watch ("watch", { moveDelay: 50 })
 							.on ("error", function (error){
 								console.error (error);
 								assert.fail ();
@@ -572,7 +571,7 @@ describe ("walkie-watchie", function (){
 					
 					var o = {};
 					
-					var watcher = watch ("watch")
+					var watcher = watch ("watch", { moveDelay: 50 })
 							.on ("error", function (error){
 								console.error (error);
 								assert.fail ();
@@ -621,7 +620,7 @@ describe ("walkie-watchie", function (){
 					
 					var o = {};
 					
-					var watcher = watch ("watch", { renameDelay: null })
+					var watcher = watch ("watch")
 							.on ("error", function (error){
 								console.error (error);
 								assert.fail ();
@@ -672,7 +671,7 @@ describe ("walkie-watchie", function (){
 					
 					var o = {};
 					
-					var watcher = watch ("watch", { renameDelay: null })
+					var watcher = watch ("watch")
 							.on ("error", function (error){
 								console.error (error);
 								assert.fail ();

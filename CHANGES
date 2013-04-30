@@ -1,5 +1,7 @@
-v0.0.9 (xx xx 2013)
-	Some bugfixes with vim with a renameDelay configured.
+v0.0.9 (30 Apr 2013)
+	Changed "renameDelay" name to "moveDelay".
+	Timers are now disabled by default.
+	Some bugfixes with vim.
 
 v0.0.8 (30 Apr 2013)
 	Added tests and tested on multiple operating systems.

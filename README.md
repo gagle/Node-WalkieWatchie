@@ -5,13 +5,16 @@ _Node.js project_
 
 ## Warning
 Because `fs.watch()` is pretty unstable this module is in a beta state until v0.1.0.
+Editing files with vim is currently bugged with a moveDelay but I've thought a new way to process raw events that could could pretty well.
 ***
 
 #### File system watcher ####
 
-Version: 0.0.8
+Version: 0.0.9
 
 The definitive file system watcher. Currently only Windows and Linux are fully supported.
+
+The `fs.watchFile()` function is not recommended and the `fs.watch()` function is terribly bugged: duplicate emitted events, false positives, watchers emitting events when they should not, incorrect event types, the returned filename parameter is not guaranteed, it isn't cross platform, etc. This module tries to workaround all these bugs at its best so you don't have to worry about anything.
 
 Tested on:
 
@@ -21,14 +24,6 @@ Tested on:
 - Debian 6.0.7 x64.
 - Linux Mint 14 x64.
 - Ubuntu 12.04 x64.
-
-This module can be used without timers. It's not necessary to create a timer to avoid duplicate change events, but certain operations may require it, e.g. uploading a file through ssh or ftp. By default it uses a 50ms timeout, but it can be disabled. I recommend to test whether your scenario can support file changes without a timer, if so, you can safely disable it. Also, another timer with 50ms timeout is being used to detect rename/move events but it also can be disabled because is not 100% accurate, in that case you'll get delete and create events instead of move events.
-
-All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly, they are poorly written, they are incomplete and lack some events or they are just outdated.
-
-The `fs.watchFile()` function is not recommended and the `fs.watch()` function is terribly bugged: duplicate emitted events, false positives, watchers emitting events when they should not, incorrect event types, the returned filename parameter is not guaranteed, etc. This module tries to workaround all these bugs at its best so you don't have to worry about anything.
-
-When a watcher is bound to a file it emits incorrect events. The basic idea is to only watch directories. However, duplicate change events are still emitted. The simplest solution is to add a lock, treat the first emitted event, emit a custom change event and then unlock.
 
 #### Installation ####
 
@@ -44,10 +39,18 @@ var util = require ("util");
 
 var watcher = watch (".");
 
+watcher.on ("error", function (error){
+	console.error (error);
+});
+
 watcher.on ("watching", function (){
-	console.log ("directories: " + watcher.directories ());
-	console.log ("files: " + watcher.files ());
+	console.log ("directories: " + watcher.directories () +
+			", files: " + watcher.files ());
 	console.log (util.inspect (watcher.tree (), { depth: null }));
+});
+
+watcher.on ("change", function (path){
+	console.log ("change: " + path);
 });
 
 watcher.on ("create", function (path, stats){
@@ -63,35 +66,63 @@ watcher.on ("delete", function (path, isDir){
 			", files: " + watcher.files ());
 });
 
-watcher.on ("change", function (path){
-	console.log ("change: " + path);
-});
-
 watcher.on ("move", function (oldPath, newPath, isDir){
 	console.log ("move: old: " + oldPath + ", new: " + newPath + 
 			", " + (isDir ? "directory" : "file"));
+	console.log ("directories: " + watcher.directories () +
+			", files: " + watcher.files ());
 });
 
 watcher.on ("any", function (){
 	console.log ("any");
 });
-
-watcher.on ("error", function (error){
-	console.error (error);
-});
 ```
 
 #### Caveats ####
 
-- Currently, if multiple operations are done in a very short period of time unexpected behaviours could happen, like events not being emitted, incorrect events, etc. This is because `fs.watch()` emits events in the same tick of the event loop but some asynchronous checks must be done in order to properly detect events.
+- This module can be used without timers. It's not necessary to create a timer to avoid duplicate change events, but certain operations may require it, e.g. saving changes with the vim editor, uploading files through ssh or ftp, etc. By default it doesn't use any timer but it can be enabled. Typical timeout values may go between 10ms and 100ms. I recommend to test whether your scenario can support file changes without a timer.
 
-  If you basically use this module to know when the files are modified you shouldn't get unexpected behaviours.
+	This is not an exact science, depending on the software you use to edit the files you could get errors, you could get duplicate events even with a timer, you could be notified with temporary files, etc. Please report all the inconsistencies you find and they will be fixed.
+
+	Use this simple code to test stuff:
+
+	```javascript
+	var watch = require ("walkie-watchie");
+	
+	watch (".", { changeDelay: null, moveDelay: null })
+			.on ("error", console.error.bind (undefined))
+			.on ("change", console.log.bind (undefined, "change"))
+			.on ("create", console.log.bind (undefined, "create"))
+			.on ("delete", console.log.bind (undefined, "delete"))
+			.on ("move", console.log.bind (undefined, "move"));
+	```
+
+- Another timer can be used to detect move events but by default it's disabled because is not 100% accurate, in that case you'll get delete and create events instead of move events.
+
+	Take into account that a rename/move event is just a delete and create events occurring in a very short period of time so it's not possible to check if a file has been moved from one location to another (or within the same directory) or if one file has been deleted and another one has been created very quickly.
+	
+	For example, these two commands are error prone: `mv a b` and `rm a && touch b`. `fs.watch()` will emit in both cases in the same tick:
   
-  It's working pretty well with the `shelljs` module which uses the Node.js built-in fs functions and emit events in the same tick.
+  `a` is deleted  
+  `b` is created
+  
+  It's not possible to know if it was a move or delete-create action. If you enable the `moveDelay`, you'll get a move event in both cases. If you disable the `moveDelay` you'll get a delete and create events in both cases.
 
+- The goal of this module is to detect any type of operation in a development environment when the user modifies files with the preferred text editor, uses the file explorer or the console terminal. File system changes are typically listened when you're writing client files (ejs, jade, less, scripts, etc.) and you need to build style and script bundles to minimize the number of requests.
+
+	Currently, if multiple operations are done in a very short period of time unexpected behaviours could happen, like events not being emitted, incorrect events, etc. 
+
+	You can do I/O operations programmatically and listen to the events but I don't recommend it because it's not the objective of this module and currently these type of operations are not being tested. This is because `fs.watch()` emits events in the same tick of the event loop but some asynchronous checks must be done in order to properly detect events.
+	
+	It's working pretty well with the `shelljs` module which uses the Node.js built-in fs functions and emit events in the same tick.
+	
+	If you basically use this module to know when the files are modified you shouldn't get unexpected behaviours.
+	
 - This module tries to fix all the incorrect events emitted by `fs.watch()` but cannot detect inconsistencies from other programs. For example, the `touch` command sometimes changes the file so you can get a create event followed by a change.
 
 - Symbolic links are not supported. Watching a file implies watching its parent directory, so you can imagine the complexity to enable support for them.
+
+  When a watcher is bound to a file it emits incorrect events. The basic idea is to only watch directories. However, duplicate change events are still emitted. The simplest solution is to add a lock, treat the first emitted event, emit a custom change event and then unlock.
 
 #### Known issues ####
 
@@ -177,22 +208,9 @@ The possible settings are:
 			!endsWith (basename, ".swx") && !endsWith (basename, "~");
   ```
 
-- changeDelay. _Number_. Delay in milliseconds between file changes events. File changes occurred within the delay period are ignored. Default is 50ms. Set it to null to disable the timer but take into account that certain operations may require it. If a 50ms timeout is still too slow and you get duplicate change events increment it until you stop receiving duplicates.
+- changeDelay. _Number_. Delay in milliseconds between file changes events. File changes occurred within the delay period are ignored. By default it is disabled. Typical values may go between 10ms and 100ms.
 
-- renameDelay. _Number_. Delay in milliseconds to detect rename/move events. Default is 50ms. Take into account that a rename/move event it's just a delete followed by a create (from the `fs.watch()` point of view) so it's not possible to check if a file has been moved from one location to another (or within the same directory) that's why a timer is needed to detect rename/move events.
-
-  The goal of this module is to detect any type of operation in a development environment when the user modifies files with the preferred text editor or uses the file explorer or console. File system changes are typically listened when you're writing client files (ejs, jade, less, scripts, etc.) and you need to build style and script bundles to minimize the number of requests.
-  
-  The rename/move event can't be detected without a timer. If you rename a file and immediately after you create another file bad things could happen. The first renamed file could be interpreted as a new file and the second created file could be interpreted as a renamed file because the rename/move timer is still active.
-  
-  However, the rename/move timer can be disabled setting `renameDelay` to null and therefore no rename/move events will be emitted. Rename/move events will be interpreted as a delete followed by a create.
-  
-  Another example. These two commands are error prone: `mv a b` and `rm a && touch b`. `fs.watch()` will emit in both cases in the same tick:
-  
-  `a` is deleted  
-  `b` is created
-  
-  It's not possible to know if it was a move or delete-create action. If you are using a `renameDelay`, you'll get a move event in both cases. If you disable the `renameDelay` you'll get a delete and create events in both cases.
+- moveDelay. _Number_. Delay in milliseconds to detect rename/move events. Delete and create venets occurred in a very short period of time are considered move events. By default it is disabled. Typical values may go between 10ms and 100ms. 
 
 <a name="directories"></a>
 __Watcher#directories()__  
@@ -225,7 +243,7 @@ watch ("my/dir");
 }
 ```
 
-It returns null when the watched entry is a file or when has been called to `unwatch()`.
+It returns null when the watched entry is a file or when `unwatch()` has been called.
 
 <a name="unwatch"></a>
 __Watcher#unwatch()__  
