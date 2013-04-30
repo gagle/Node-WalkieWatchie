@@ -6,9 +6,52 @@ var path = require ("path");
 var fs = require ("fs");
 var watch = require ("../lib/walkie-watchie");
 
+var WINDOWS = process.platform === "win32";
 var LINUX = process.platform === "linux";
 
 describe ("walkie-watchie", function (){
+	describe ("duplicate change events", function (){
+		it ("can be avoided without a timer", function (done){
+			cp ("a/a1", "watch/f1");
+			
+			var tree = {};
+			tree["f1"] = path.normalize ("watch/f1");
+			
+			var expected = {};
+			expected[path.normalize ("watch/f1")] = null;
+			
+			var o = {};
+			
+			var watcher = watch ("watch", { changeDelay: null })
+					.on ("error", function (error){
+						console.error (error);
+						assert.fail ();
+					})
+					.on ("watching", function (){
+						assert.strictEqual (watcher.files (), 1);
+						assert.strictEqual (watcher.directories (), 1);
+						fs.createWriteStream ("watch/f1")
+								.on ("error", function (error){
+									console.error (error);
+									assert.fail ();
+								})
+								.end ("asd");
+					})
+					.on ("change", function (p){
+						o[p] = null;
+					});
+			
+			setTimeout (function (){
+				assert.deepEqual (o, expected);
+				assert.strictEqual (watcher.files (), 1);
+				assert.strictEqual (watcher.directories (), 1);
+				assert.deepEqual (watcher.tree (), tree);
+				watcher.unwatch ();
+				done ();
+			}, 100);
+		});
+	});
+
 	describe ("tree and counters", function (){
 		beforeEach (function (){
 			rm ("-r", "watch/*");

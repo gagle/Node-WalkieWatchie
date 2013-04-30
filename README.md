@@ -9,7 +9,7 @@ Because `fs.watch()` is pretty unstable this module is in a beta state until v0.
 
 #### File system watcher ####
 
-Version: 0.0.7
+Version: 0.0.8
 
 The definitive file system watcher. Currently only Windows and Linux are fully supported.
 
@@ -18,10 +18,11 @@ Tested on:
 - Windows XP x86.
 - Windows 7 x64.
 - Windows 8 x64.
+- Debian 6.0.7 x64.
 - Linux Mint 14 x64.
 - Ubuntu 12.04 x64.
 
-This module can be used without timers. It's not necessary to create a timer to avoid duplicate change events on Windows, but for compatibility reasons among operating systems a 50ms timeout is set by default, but it can be disabled. Also, another timer with 50ms timeout is being used to detect rename/move events but it also can be disabled, in that case you'll get delete and create events instead of move events.
+This module can be used without timers. It's not necessary to create a timer to avoid duplicate change events, but certain operations may require it, e.g. uploading a file through ssh or ftp. By default it uses a 50ms timeout, but it can be disabled. I recommend to test whether your scenario can support file changes without a timer, if so, you can safely ignore it. Also, another timer with 50ms timeout is being used to detect rename/move events but it also can be disabled because is not 100% accurate, in that case you'll get delete and create events instead of move events.
 
 All the other tree traversal watchers doesn't do what they're supposed to do, they have an extraordinarily bad api, they don't manage errors properly, they are poorly written, they are incomplete and lack some events or they are just outdated.
 
@@ -107,7 +108,7 @@ On Windows you can't delete `a` because the subdirectory `b` is being watched: [
 
 For uniformity reasons among operating systems, because on Windows you cannot delete a directory if there are subdirectories being watched, and because on Linux files and subdirectories doesn't emit any event when a directory is deleted, only one event will be emitted, the event that says that the directory has been deleted. If a directory has been deleted you can assume that all its content has also been deleted.
 
-Watching directories inside a FAT file system (e.g. USB pendrive) is not working as expected.
+Running Node.js inside a FAT file system (e.g. USB pendrive) with a Windows portable executable is not working as expected.
 
 #### Events ####
 
@@ -124,6 +125,7 @@ Watching directories inside a FAT file system (e.g. USB pendrive) is not working
 - [watch(path[, settings])](#watch)
 - [Watcher#directories()](#directories)
 - [Watcher#files()](#files)
+- [Watcher#root()](#root)
 - [Watcher#tree()](#tree)
 - [Watcher#unwatch()](#unwatch)
 
@@ -175,7 +177,7 @@ The possible settings are:
 			!endsWith (basename, ".swx") && !endsWith (basename, "~");
   ```
 
-- changeDelay. _Number_. Delay in milliseconds between file changes events. File changes occurred within the delay period are ignored. Default is 50ms. Set it to null to disable the timer but take into account that some platforms (Unix-like) need a timer to avoid duplicate change events.
+- changeDelay. _Number_. Delay in milliseconds between file changes events. File changes occurred within the delay period are ignored. Default is 50ms. Set it to null to disable the timer but take into account that certain operations may require it. If a 50ms timeout is still too slow and you get duplicate change events increment it until you stop receiving duplicates.
 
 - renameDelay. _Number_. Delay in milliseconds to detect rename/move events. Default is 50ms. Take into account that a rename/move event it's just a delete followed by a create (from the `fs.watch()` point of view) so it's not possible to check if a file has been moved from one location to another (or within the same directory) that's why a timer is needed to detect rename/move events.
 
@@ -199,6 +201,10 @@ Returns the number of watched directories.
 <a name="files"></a>
 __Watcher#files()__  
 Returns the number of watched files.
+
+<a name="root"></a>
+__Watcher#root()__  
+Returns the main path being watched. It's the normalized path that receives the `watch()` function.
 
 <a name="tree"></a>
 __Watcher#tree()__  

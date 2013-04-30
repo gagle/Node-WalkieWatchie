@@ -1,5 +1,5 @@
-v0.0.8 (xx Apr 2013)
-	Added tests.
+v0.0.8 (30 Apr 2013)
+	Added tests and tested on multiple operating systems.
 	Removed .DS_Store filter.
 	Some bugfixes.
 
