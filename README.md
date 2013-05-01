@@ -7,11 +7,13 @@ _Node.js project_
 Because `fs.watch()` is pretty unstable this module is in a beta state until v0.1.0. A lot of changes could happen.
 
 Editing files with vim is currently bugged with a moveDelay.
+
+The move event only gives to me a lot of headaches because a timer is mandatory. I'm considering to remove it. The code will be more cleaner and easy to maintain and any programmatic change will be allowed.
 ***
 
 #### File system watcher ####
 
-Version: 0.0.9
+Version: 0.0.10
 
 The definitive file system watcher. Currently only Windows and Linux are fully supported.
 

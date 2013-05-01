@@ -1,6 +1,6 @@
 {
 	"name": "walkie-watchie",
-	"version": "0.0.9",
+	"version": "0.0.10",
 	"description": "File system watcher",
 	"keywords": ["walk", "watch", "fs", "tree", "file", "directory"],
 	"author": {
